@@ -1,4 +1,5 @@
-// v0.03
+// v0.05
+// Time for GitHub! I think under STAN PERSONAL???? like with BMC Virtual Disk stuff
 
 // VFD Display:
 /*
@@ -17,77 +18,40 @@ import (
 	"time"
 )
 
+var sb_conn net.Dialer
+
 func main() {
 	fmt.Println("Roku SoundBridge GFX Library")
 
-	// Connect to 192.168.0.228 port 4444
-	// Send 'sketch\r\n'
-	// Connected!
-	conn, err := net.Dial("tcp", "192.168.0.228:4444")
-	if err != nil {
-		fmt.Println("Error: ", err)
-	}
-	fmt.Println("Connected!")
-
+	sb_conn := sb_connect() // This is the "net.Conn" part AFTER the "net.Dial/Dialer" is set up!! (likew "new_conn" in sb_connect()
 	// Enter 'sketch' mode
-	time.Sleep(1 * time.Second) // heh
-	data := []byte("sketch\r\n")
-	_, err = conn.Write(data)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
+	fmt.Fprintf(sb_conn, "sketch\r\n")
 	
 	// Draw
 	fmt.Println("Sending sketch")
-	data = []byte("text 5 5 \"hello\"\r\n")
-	_, err = conn.Write(data)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	fmt.Fprintf(sb_conn, "text 5 5 \"hello\"\r\n")
 	time.Sleep(1 * time.Second)
 
 	// Exit
 	fmt.Println("Exiting...")
-	data = []byte("exit\r\nexit\r\n")
-	_, err = conn.Write(data)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	fmt.Fprintf(sb_conn, "exit\r\nexit\r\n")
 
-	defer conn.Close()
+	defer sb_conn.Close()
 }
 
-/*
 // Connectivity
-func sb_connect(conn net.Conn) {
+func sb_connect() (butts net.Conn){
 	// Connect to 192.168.0.228 port 4444
 	// Send 'sketch\r\n'
 	// Connected!
-	conn, err := net.Dial("tcp", "192.168.0.228:4444")
+	new_conn, err := sb_conn.Dial("tcp", "192.168.0.228:4444")
 	if err != nil {
 		fmt.Println("Error: ", err)
-		return
 	}
+	time.Sleep(1 * time.Second) // heh
+	fmt.Fprintf(new_conn, "sketch\r\n")
 	fmt.Println("Connected!")
-	// defer conn.Close()
+
+	// Return the net.Conn "handler"(?)
+	return new_conn
 }
-
-func sb_disconnect() {}
-func sb_sync() {} // Keep-Alive?
-
-// Graphics Functions
-func point(int x, int y) {}
-func line() {}
-func square(int x_1, int y_1, int x_2, int y_2, bool filled){}
-func interleaving_lines() {
-	// | ||| | ||| | ||| this kinda stuff. lines flip back and forth between on and off
-}
-
-// Demo Games (not playable.... yet)
-func pong(){}
-func snake(){}
-*/
