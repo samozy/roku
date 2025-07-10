@@ -1,5 +1,6 @@
-// v0.05
-// Time for GitHub! I think under STAN PERSONAL???? like with BMC Virtual Disk stuff
+// v0.06
+// 07/09/25
+// by sayzenberg
 
 // VFD Display:
 /*
@@ -23,27 +24,19 @@ var sb_conn net.Dialer
 func main() {
 	fmt.Println("Roku SoundBridge GFX Library")
 
-	sb_conn := sb_connect() // This is the "net.Conn" part AFTER the "net.Dial/Dialer" is set up!! (likew "new_conn" in sb_connect()
-	// Enter 'sketch' mode
-	fmt.Fprintf(sb_conn, "sketch\r\n")
+	// Connect to the SB and enter sketch mode
+	// This is the "net.Conn" part AFTER the "net.Dial/Dialer" is set up!! (likew "new_conn" in sb_connect()
+	sb_conn := sb_connect()
 	
 	// Draw
-	fmt.Println("Sending sketch")
-	fmt.Fprintf(sb_conn, "text 5 5 \"hello\"\r\n")
-	time.Sleep(1 * time.Second)
+	print_text("hello!", sb_conn)
 
 	// Exit
-	fmt.Println("Exiting...")
-	fmt.Fprintf(sb_conn, "exit\r\nexit\r\n")
-
-	defer sb_conn.Close()
+	sb_disconnect(sb_conn)
 }
 
 // Connectivity
-func sb_connect() (butts net.Conn){
-	// Connect to 192.168.0.228 port 4444
-	// Send 'sketch\r\n'
-	// Connected!
+func sb_connect() (butts net.Conn) {
 	new_conn, err := sb_conn.Dial("tcp", "192.168.0.228:4444")
 	if err != nil {
 		fmt.Println("Error: ", err)
@@ -54,4 +47,16 @@ func sb_connect() (butts net.Conn){
 
 	// Return the net.Conn "handler"(?)
 	return new_conn
+}
+
+func sb_disconnect(butts net.Conn) () {
+        fmt.Println("Exiting...")
+        fmt.Fprintf(butts, "exit\r\nexit\r\n")
+	butts.Close()
+}
+
+func print_text(text string, butts net.Conn) () {
+	fmt.Println("Sending sketch")
+	fmt.Fprintf(butts, "text 5 5 %s\r\n", text)
+	time.Sleep(1 * time.Second)
 }
